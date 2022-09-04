@@ -15,9 +15,13 @@ Made for those who only need to automatically copy files without other requireme
 
 Only Python3 is needed.
 
+## How to Install
+
+Download a [release](https://github.com/kuwii/simple-usb-sync/releases), and install it through `pip`.
+
 ## How to use
 
-The simplest way to run is calling `simple-usb-sync` script in this repo folder.
+After installation, run `simple-usb-sync` or `usbsync` in terminal.
 
 The program will try to read config from these 2 locations, any one of which can work:
 
@@ -30,7 +34,7 @@ If neither of these 2 configs exists, the program will leave a config template a
 - `usbName`: Name of the USB drive showed in file explorer.
 - `target`: Folder name in USB drive to store the synced files.
 
-After the config updated, just run the programs. No parameter needed and supported.
+After the config updated, just run the program again. No parameter needed and supported.
 
 ## Supported platforms
 
@@ -38,8 +42,8 @@ After the config updated, just run the programs. No parameter needed and support
 
 ## To do
 
-- Package
 - GUI
 - Windows support
 - Linux support
 - Parallel file copy
+- Pip install
