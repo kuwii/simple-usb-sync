@@ -43,8 +43,20 @@ class Drives(object):
         return mapping
 
 
-def get_drive(drive_name) -> Drive | None:
+def get_drive(drive_name: Text) -> Drive | None:
     drives = Drives()
     if drives.has(drive_name):
         return drives.get(drive_name)
     return None
+
+
+def init_drive(drive_name: Text) -> Drive:
+    drive = None
+    while drive is None:
+        print('Checking drive {} ... '.format(drive_name))
+        drive = get_drive(drive_name)
+        if drive is None:
+            print('Drive {} is not plugged in\n'.format(drive_name))
+            sleep(10)
+    print('Drive {} plugged in, mounted at {}\n'.format(drive_name, drive.path()))
+    return drive

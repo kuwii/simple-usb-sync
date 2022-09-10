@@ -1,4 +1,4 @@
-from typing import Text
+from typing import Text, Any
 from os import path, makedirs
 from pathlib import Path
 from json import load, dump
@@ -37,7 +37,7 @@ class Config(object):
     def target(self) -> Text:
         return self._target
 
-    def _check(self, config_json) -> None:
+    def _check(self, config_json: Any) -> None:
         for key in ['source', 'usbName', 'target']:
             if config_json[key] == default_config[key]:
                 raise RuntimeError('Config in {} not set'.format(self._path))
@@ -52,11 +52,27 @@ def get_config() -> Config | None:
     return None
 
 
-def write_config(config_path) -> None:
+def write_config(config_path: Text, config: Any) -> None:
     config_dir = path.dirname(config_path)
     if not path.exists(config_dir):
         makedirs(config_dir)
     with open(config_path, 'w') as f:
-        dump(default_config, f, indent=2)
+        dump(config, f, indent=2)
         f.write('\n')
     return
+
+
+def init_config() -> Config | None:
+    config = get_config()
+    if config is None:
+        write_config(config_path_documents, default_config)
+        print('A template config is generated at {}. Please update it.'.format(config_path_documents))
+        return None
+    message = [
+        'Using config at {}'.format(config.path()),
+        ' - Source: {}'.format(config.source()),
+        ' - USB drive: {}'.format(config.usb_name()),
+        ' - Target folder: {}'.format(config.target()),
+    ]
+    print('{}\n'.format('\n'.join(message)))
+    return config

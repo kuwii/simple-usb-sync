@@ -1,6 +1,6 @@
 # Simple USB Sync
 
-A super simple personal-use tool for automatically syncing files to a specific USB drive.
+A simple, stupid, configuration-file-based tool for automatically syncing files to a specific USB drive.
 
 ## Features
 
