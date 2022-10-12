@@ -21,10 +21,13 @@ def copy_file(source: Text, target: Text) -> None:
 
 
 def delete(path: Text) -> None:
-    if os_path.isdir(path):
-        rmtree(path)
-    else:
-        remove(path)
+    try:
+        if os_path.isdir(path):
+            rmtree(path)
+        else:
+            remove(path)
+    except Exception:
+        print("[WARNING] cannot delete: {}".format(path))
     return
 
 

@@ -6,7 +6,7 @@ from .sync import sync_folder
 
 
 def run(config: Config) -> None:
-    drive = init_drive(config.path())
+    drive = init_drive(config.usb_name())
     source = config.source()
     target = path.join(drive.path(), config.target())
     try:
