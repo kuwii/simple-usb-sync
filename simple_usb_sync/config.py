@@ -1,78 +1,74 @@
-from typing import Text, Any
+from typing import Mapping, Any
+
+from dataclasses import dataclass
+from json import load, dump
 from os import path, makedirs
 from pathlib import Path
-from json import load, dump
 
+CONFIG_KEY_DEVICE = 'usbName'
+CONFIG_KEY_SOURCE = 'source'
+CONFIG_KEY_TARGET = 'target'
 
-config_path_user = path.join(Path.home(), '.config', 'simple-usb-sync', 'config.json')
-config_path_documents = path.join(Path.home(), 'Documents', 'simple-usb-sync.json')
+_config_home = path.join(Path.home(), '.config', 'simple-usb-sync')
+_config_documents_path = path.join(Path.home(), 'Documents', 'simple-usb-sync.json')
+_config_paths = (
+    path.join(_config_home, 'config.json'),
+    _config_documents_path,
+)
 
-default_config = {
-    'source': '<source to sync>',
-    'usbName': '<name of usb drive>',
-    'target': '<name of target folder in usb drive>',
-}
-
-
+@dataclass(frozen=True)
 class Config(object):
-    def __init__(self, config_path: Text):
-        self._path = str(config_path)
-        with open(self._path, 'r') as f:
-            config = load(f)
-        self._check(config)
-        self._source = str(config['source'])
-        self._usbName = str(config['usbName'])
-        self._target = str(config['target'])
+    device_name: str
+    source_dir: str
+    target_dir: str
+
+    @classmethod
+    def load(cls, create_template: bool=False) -> 'Config':
+        config_json = cls._get_config_json(create_template)
+        device_name = cls._get_prop(config_json, CONFIG_KEY_DEVICE)
+        source_dir = cls._get_prop(config_json, CONFIG_KEY_SOURCE)
+        target_dir = cls._get_prop(config_json, CONFIG_KEY_TARGET)
+        config = Config(device_name=device_name, source_dir=source_dir, target_dir=target_dir)
+        return config
+    
+    def save(self, path: str=_config_home) -> None:
+        json = {
+            'usbName': self.device_name,
+            'source': self.source_dir,
+            'target': self.target_dir,
+        }
+        makedirs(_config_home, exist_ok=True)
+        with open(path, 'w') as f:
+            dump(json, f, indent=2)
         return
-
-    def path(self) -> Text:
-        return self._path
-
-    def source(self) -> Text:
-        return self._source
-
-    def usb_name(self) -> Text:
-        return self._usbName
-
-    def target(self) -> Text:
-        return self._target
-
-    def _check(self, config_json: Any) -> None:
-        for key in ['source', 'usbName', 'target']:
-            if config_json[key] == default_config[key]:
-                raise RuntimeError('Config in {} not set'.format(self._path))
-        return
-
-
-def get_config() -> Config | None:
-    if path.exists(config_path_user):
-        return Config(config_path_user)
-    if path.exists(config_path_documents):
-        return Config(config_path_documents)
-    return None
-
-
-def write_config(config_path: Text, config: Any) -> None:
-    config_dir = path.dirname(config_path)
-    if not path.exists(config_dir):
-        makedirs(config_dir)
-    with open(config_path, 'w') as f:
-        dump(config, f, indent=2)
-        f.write('\n')
-    return
-
-
-def init_config() -> Config | None:
-    config = get_config()
-    if config is None:
-        write_config(config_path_documents, default_config)
-        print('A template config is generated at {}. Please update it.'.format(config_path_documents))
-        return None
-    message = [
-        'Using config at {}'.format(config.path()),
-        ' - Source: {}'.format(config.source()),
-        ' - USB drive: {}'.format(config.usb_name()),
-        ' - Target folder: {}'.format(config.target()),
-    ]
-    print('{}\n'.format('\n'.join(message)))
-    return config
+    
+    @classmethod
+    def _get_config_json(cls, create_template: bool=False) -> Mapping[str, str | None]:
+        for config_path in _config_paths:
+            if path.exists(config_path):
+                with open(config_path, 'r') as f:
+                    return load(f)
+        if create_template:
+            template_config = Config(
+                device_name='source to sync',
+                source_dir='/absolute/path/to/usb/drive',
+                target_dir='relative/path/to/target/folder/in/usbDrive'
+            )
+            template_config.save(_config_documents_path)
+            print('A template config is generated at {}. Please update it.'.format(_config_documents_path))
+            exit(0)
+        return {}
+    
+    @classmethod
+    def _get_prop(cls, json: Mapping[str, str | None], key: str) -> str:
+        if key in json:
+            value = json[key]
+            return value if value is not None else ""
+        return ""
+    
+    def __str__(self) -> str:
+        return 'Config(device_name={}, source={}, target={})'.format(
+            self.device_name,
+            self.source_dir,
+            self.target_dir,
+        )

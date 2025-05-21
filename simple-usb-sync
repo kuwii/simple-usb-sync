@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
 
-from simple_usb_sync.main import main
+from simple_usb_sync.cmd import run_cmd
 
-main()
+run_cmd()

@@ -10,9 +10,11 @@ class Drive(object):
         self._path = str(drive_path)
         return
 
+    @property
     def name(self) -> Text:
         return self._name
 
+    @property
     def path(self) -> Text:
         return self._path
 
@@ -58,5 +60,5 @@ def init_drive(drive_name: Text) -> Drive:
         if drive is None:
             print('Drive {} is not plugged in\n'.format(drive_name))
             sleep(10)
-    print('Drive {} plugged in, mounted at {}\n'.format(drive_name, drive.path()))
+    print('Drive {} plugged in, mounted at {}\n'.format(drive_name, drive.path))
     return drive

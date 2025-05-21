@@ -13,7 +13,13 @@ Made for those who only need to automatically copy files without other requireme
 
 ## Requirements
 
-Only Python3 is needed.
+Only Python3 is needed. But if it is installed by Homebrew, `python-tk` is also needed.
+
+## How to build
+
+To build the wheel, [build](https://github.com/pypa/build) should be installed first.
+
+Then run `python -m build`. The whl file will be created in `dist` folder.
 
 ## How to Install
 
@@ -21,12 +27,15 @@ Download a [release](https://github.com/kuwii/simple-usb-sync/releases), and ins
 
 ## How to use
 
-After installation, run `simple-usb-sync` or `usbsync` in terminal.
+After installation, 4 commands will be available:
+
+- `simple-usb-sync` and `usbsync` will run sync in terminal.
+- `simple-usb-sync-gui` and `usbsync-gui` will open a GUI version of the program.
 
 The program will try to read config from these 2 locations, any one of which can work:
 
+- `~/.config/simple-usb-sync/config.json` (used first)
 - `~/Documents/simple-usb-sync.json`
-- `~/.config/simple-usb-sync/config.json`
 
 If neither of these 2 configs exists, the program will leave a config template at `~/Documents/simple-usb-sync.json`. Please open and update the items, including:
 
@@ -42,7 +51,6 @@ After the config updated, just run the program again. No parameter needed and su
 
 ## To do
 
-- GUI
 - Windows support
 - Linux support
 - Parallel file copy
