@@ -130,6 +130,7 @@ class SyncRunner(ABC):
         print('Start thread to sync ...')
         thread = Thread(target=self.sync, args=(config,))
         thread.start()
+        self._thread = thread
         return
 
     @abstractmethod
@@ -187,6 +188,60 @@ class ManualSyncRunner(SyncRunner):
         return
 
 
+class AutoSyncRunner(SyncRunner):
+    def __init__(self,
+                 btn_auto: Button,
+                 btn_sync: Button,
+                 validate_fn: Callable[[], list[str]]):
+        super().__init__(validate_fn)
+        self._btn_auto = btn_auto
+        self._btn_sync = btn_sync
+        self._remaining_seconds = 60
+        self._running = False
+        self._stop = False
+        return
+    
+    def lock(self) -> None:
+        if not self._running:
+            self._running = True
+            self._btn_auto.set_name('Stop Sync')
+            self._btn_sync.set_name('Auto Syncing ...')
+            self._btn_sync.set_disable()
+        else:
+            self._stop = True
+            self._btn_auto.set_name('Stopping Auto Sync ...')
+            self._btn_auto.set_disable()
+            self._btn_sync.set_name('Stopping Auto Sync ...')
+            self._btn_sync.set_disable()
+        return
+    
+    def unlock(self) -> None:
+        self._running = False
+        self._stop = False
+        self._btn_auto.set_name(TEXT_BUTTON_AUTO)
+        self._btn_auto.set_normal()
+        self._btn_sync.set_name(TEXT_BUTTON_SYNC)
+        self._btn_sync.set_normal()
+        return
+
+    def sync(self, config: Config) -> None:
+        if self._stop:
+            print('Stop auto sync ...')
+            self._running = False
+        elif self._running:
+            print('Start auto sync ...')
+            while self._running:
+                print(' - [subthread] Running: {} | Stop: {}'.format(self._running, self._stop))
+                sleep(1)
+            print('Auto sync stopped.')
+            self.unlock()
+        return
+    
+    def stop(self) -> None:
+        self._running = False
+        return
+
+
 class GUI(object):
     def __init__(self):
         self._lock = False
@@ -204,7 +259,7 @@ class GUI(object):
         self._input_source_dir = PathInput(self._root_frm, 'Source')
         self._input_target_dir= StringInput(self._root_frm, 'Target')
 
-        self._btn_auto = Button(self._root_frm, TEXT_BUTTON_AUTO)
+        self._btn_auto = Button(self._root_frm, TEXT_BUTTON_AUTO, command=self._auto_sync)
         self._btn_sync = Button(self._root_frm, TEXT_BUTTON_SYNC, command=self._sync)
         self._btn_exit = Button(self._root_frm, TEXT_BUTTON_EXIT, command=self._exit)
 
@@ -214,6 +269,9 @@ class GUI(object):
         self._input_target_dir.set_value(config.target_dir)
         self._validate()
 
+        self._manual_sync_runner = ManualSyncRunner(self._btn_auto, self._btn_sync, self._validate)
+        self._auto_sync_runner = AutoSyncRunner(self._btn_auto, self._btn_sync, self._validate)
+
         return
 
     def run(self) -> None:
@@ -221,16 +279,18 @@ class GUI(object):
         return
     
     def _exit(self) -> None:
-        if not self._lock:
-            self._root.destroy()
-        else:
-            messagebox.showerror('Error', 'Still syncing. Please don\'t exit.')
+        self._auto_sync_runner.stop()
+        self._root.destroy()
+        return
+
+    def _auto_sync(self) -> None:
+        config = self._get_config()
+        self._auto_sync_runner.start(config)
         return
 
     def _sync(self) -> None:
         config = self._get_config()
-        runner = ManualSyncRunner(self._btn_auto, self._btn_sync, self._validate)
-        runner.start(config)
+        self._manual_sync_runner.start(config)
         return
     
     def _validate(self) -> list[str]:
