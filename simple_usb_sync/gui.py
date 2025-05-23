@@ -1,5 +1,6 @@
 from typing import Callable, Any
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from os import path
 from threading import Thread
@@ -18,13 +19,7 @@ STYLE_BUTTON_NORMAL = 'TButton'
 STYLE_BUTTON_RUNNING = 'running.TButton'
 STYLE_BUTTON_DISABLE = 'disable.TButton'
 
-
-@dataclass(init=False, frozen=True)
 class StringInput(object):
-    name: str
-    label: ttk.Label
-    entry: ttk.Entry
-
     def __init__(self, frame: ttk.Frame, name: str):
         row = ttk.Frame(frame)
         row.pack(fill=tk.X, pady=2)
@@ -32,22 +27,30 @@ class StringInput(object):
         label.pack(side=tk.LEFT, padx=(0, 10))
         entry = ttk.Entry(row)
         entry.pack(fill=tk.X, expand=True)
-        object.__setattr__(self, 'name', name)
-        object.__setattr__(self, 'label', label)
-        object.__setattr__(self, 'entry', entry)
+        self._name = name
+        self._label = label
+        self._entry = entry
         return
     
     @property
+    def name(self) -> str:
+        return self._name
+    
+    @property
     def value(self) -> str:
-        value = self.entry.get()
+        value = self._entry.get()
         return value if value is not None else ""
     
+    def set_value(self, value: str) -> None:
+        self._entry.delete(0, 'end')
+        self._entry.insert(0, value)
+    
     def set_normal(self) -> None:
-        self.label.configure(style=STYLE_LABEL_NORMAL)
+        self._label.configure(style=STYLE_LABEL_NORMAL)
         return
 
     def set_error(self) -> None:
-        self.label.configure(style=STYLE_LABEL_ERROR)
+        self._label.configure(style=STYLE_LABEL_ERROR)
         return
     
     def validate(self) -> list[str]:
@@ -79,7 +82,6 @@ class Button(object):
         self._button.configure(state=tk.DISABLED)
         
 
-@dataclass(init=False, frozen=True)
 class PathInput(StringInput):
     def __init__(self, frame: ttk.Frame, name: str):
         super().__init__(frame, name)
@@ -113,9 +115,9 @@ class GUI(object):
         self._btn_exit = Button(self._root_frm, 'Exit', command=self._exit)
 
         config = Config.load()
-        self._input_drive.entry.insert(0, config.device_name)
-        self._input_source_dir.entry.insert(0, config.source_dir)
-        self._input_target_dir.entry.insert(0, config.target_dir)
+        self._input_drive.set_value(config.device_name)
+        self._input_source_dir.set_value(config.source_dir)
+        self._input_target_dir.set_value(config.target_dir)
         self._validate()
 
         return
