@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+SCRIPT_PATH=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "$0")
+ENTRYPOINT_PATH=$(dirname $(dirname ${SCRIPT_PATH}))
+
+echo "Use tool at ${ENTRYPOINT_PATH}"
+
+(cd ${ENTRYPOINT_PATH} && python3 ./simple-usb-sync-gui)
