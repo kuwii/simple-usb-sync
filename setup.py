@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='simple-usb-sync',
-    version='2.0.0',
+    version='3.0.0',
     description='A simple tool to auto sync files when specific USB drive plugs in',
     author='kuwii',
     url='https://github.com/kuwii/simple-usb-sync',
