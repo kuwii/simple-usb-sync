@@ -9,10 +9,11 @@ CONFIG_KEY_DEVICE = 'usbName'
 CONFIG_KEY_SOURCE = 'source'
 CONFIG_KEY_TARGET = 'target'
 
-_config_home = path.join(Path.home(), '.config', 'simple-usb-sync')
+_config_home_dir = path.join(Path.home(), '.config', 'simple-usb-sync')
+_config_home_path = path.join(_config_home_dir, 'config.json')
 _config_documents_path = path.join(Path.home(), 'Documents', 'simple-usb-sync.json')
 _config_paths = (
-    path.join(_config_home, 'config.json'),
+    _config_home_path,
     _config_documents_path,
 )
 
@@ -31,13 +32,13 @@ class Config(object):
         config = Config(device_name=device_name, source_dir=source_dir, target_dir=target_dir)
         return config
     
-    def save(self, path: str=_config_home) -> None:
+    def save(self, path: str=_config_home_path) -> None:
         json = {
             'usbName': self.device_name,
             'source': self.source_dir,
             'target': self.target_dir,
         }
-        makedirs(_config_home, exist_ok=True)
+        makedirs(_config_home_dir, exist_ok=True)
         with open(path, 'w') as f:
             dump(json, f, indent=2)
         return
