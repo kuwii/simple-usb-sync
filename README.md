@@ -13,17 +13,27 @@ Made for those who only need to automatically copy files without other requireme
 
 ## Requirements
 
-Only Python3 is needed. But if it is installed by Homebrew, `python-tk` is also needed.
+Python 3.13+ is needed. If it is installed by Homebrew, `python-tk` is also needed.
+
+To run scripts in `bin`, `python3` command should be available.
+
+Currently only macOS is supported.
+
+## How to Install
+
+### Through bin
+
+Add `bin` folder to `PATH` environment variable.
+
+### Through pip
+
+Build or download a [release](https://github.com/kuwii/simple-usb-sync/releases), and install it through `pip`.
 
 ## How to build
 
 To build the wheel, [build](https://github.com/pypa/build) should be installed first.
 
 Then run `python -m build`. The whl file will be created in `dist` folder.
-
-## How to Install
-
-Download a [release](https://github.com/kuwii/simple-usb-sync/releases), and install it through `pip`.
 
 ## How to use
 
@@ -45,13 +55,8 @@ If neither of these 2 configs exists, the program will leave a config template a
 
 After the config updated, just run the program again. No parameter needed and supported.
 
-## Supported platforms
-
-- macOS
-
 ## To do
 
 - Windows support
 - Linux support
 - Parallel file copy
-- Pip install
